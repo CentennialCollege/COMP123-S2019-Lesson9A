@@ -12,9 +12,34 @@ namespace COMP123_S2019_Lesson9A
 {
     public partial class Lesson9Form : Form
     {
+        /// <summary>
+        /// This is the Constructor Method
+        /// </summary>
         public Lesson9Form()
         {
             InitializeComponent();
+        }
+
+        /// <summary>
+        /// This is the shared Event Handler for all of the Calculator Buttons' Click Event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CalculatorButtons_Click(object sender, EventArgs e)
+        {
+            Button selectedButton = sender as Button;
+
+            try
+            {
+                int.Parse(selectedButton.Text);
+                ResultLabel.Text = selectedButton.Text;
+            }
+            catch 
+            {
+                ResultLabel.Text = "Not a Number";
+                
+            }
+
         }
     }
 }
