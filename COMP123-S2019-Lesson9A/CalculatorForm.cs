@@ -12,10 +12,39 @@ namespace COMP123_S2019_Lesson9A
 {
     public partial class CalculatorForm : Form
     {
-        // CLASS PROPERTIES
+        // PRIVATE DATA MEMBERS
+        private Label m_activeLabel;
+
+        // PUBLIC PROPERTIES
         public string outputString { get; set; }
         public float outputValue { get; set; }
         public bool decimalExists { get; set; }
+
+        public Label ActiveLabel
+        {
+            get
+            {
+                return m_activeLabel;
+            }
+
+            set
+            {
+                // check if m_activeLabel is already pointing at a label
+                if(m_activeLabel != null)
+                {
+                    m_activeLabel.BackColor = Color.White;
+                }
+
+                m_activeLabel = value;
+
+                // check if m_activeLabel has not been set to null
+                if(m_activeLabel != null)
+                {
+                    m_activeLabel.BackColor = Color.LightBlue;
+                }
+                
+            }
+        }
 
         /// <summary>
         /// This is the Constructor Method
@@ -23,6 +52,32 @@ namespace COMP123_S2019_Lesson9A
         public CalculatorForm()
         {
             InitializeComponent();
+        }
+
+        /// <summary>
+        /// This is the event handler for the form load event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CalculatorForm_Load(object sender, EventArgs e)
+        {
+            this.Size = new Size(320, 480);
+
+            clearNumericKeyboard();
+            NumberButtonTableLayoutPanel.Visible = false;
+        }
+
+        /// <summary>
+        /// This is the event handler for the form click event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CalculatorForm_Click(object sender, EventArgs e)
+        {
+            NumberButtonTableLayoutPanel.Visible = false;
+
+            ActiveLabel = null;
+            clearNumericKeyboard();
         }
 
         /// <summary>
@@ -46,12 +101,9 @@ namespace COMP123_S2019_Lesson9A
                 {
                     outputString = tag;
                 }
-                else
+                else if (outputString.Length < maxSize)
                 {
-                    if(outputString.Length < maxSize)
-                    {
                         outputString += tag;
-                    }
                 }
                     
                 ResultLabel.Text = outputString;
@@ -102,9 +154,11 @@ namespace COMP123_S2019_Lesson9A
             {
                 outputValue = 0.1f;
             }
-            HeightLabel.Text = outputValue.ToString();
+            ActiveLabel.Text = outputValue.ToString();
             clearNumericKeyboard();
             NumberButtonTableLayoutPanel.Visible = false;
+            ActiveLabel.BackColor = Color.White;
+            ActiveLabel = null;
         }
 
         /// <summary>
@@ -138,25 +192,53 @@ namespace COMP123_S2019_Lesson9A
             decimalExists = false;
         }
 
-        /// <summary>
-        /// This is the event handler for the form load event
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void CalculatorForm_Load(object sender, EventArgs e)
-        {
-            clearNumericKeyboard();
-            NumberButtonTableLayoutPanel.Visible = false;
-        }
+        
 
         /// <summary>
         /// This is the event handler for the HeightLabel click event
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void HeightLabel_Click(object sender, EventArgs e)
+        private void ActiveLabel_Click(object sender, EventArgs e)
         {
+            
+            if(ActiveLabel != null)
+            {
+                clearNumericKeyboard();
+            }
+
+            ActiveLabel = sender as Label;
+            ActiveLabel.BackColor = Color.LightBlue;
+
+            AnimationTimer.Enabled = true;
+
+            //NumberButtonTableLayoutPanel.Location = new Point(12, ActiveLabel.Location.Y + 55);
+            NumberButtonTableLayoutPanel.BringToFront();
+
+            if (ActiveLabel.Text != "0")
+            {
+                outputString = ActiveLabel.Text;
+                ResultLabel.Text = ActiveLabel.Text;
+            }
+
+
             NumberButtonTableLayoutPanel.Visible = true;
+        }
+
+        private void AnimationTimer_Tick(object sender, EventArgs e)
+        {
+            var currentLocation = NumberButtonTableLayoutPanel.Location;
+            NumberButtonTableLayoutPanel.Location = new Point(currentLocation.X, currentLocation.Y - 20);
+
+            if (NumberButtonTableLayoutPanel.Location.Y <= ActiveLabel.Location.Y + 55)
+            {
+                AnimationTimer.Enabled = false;
+                if(NumberButtonTableLayoutPanel.Location.Y < ActiveLabel.Location.Y + 55)
+                {
+                    NumberButtonTableLayoutPanel.Location = new Point(currentLocation.X, ActiveLabel.Location.Y + 55);
+                }
+            }
+
         }
     }
 }
